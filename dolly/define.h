@@ -29,4 +29,5 @@
 #define MODE_ADR 1
 #define DIR_ADR 2
 
-
+#define ACCELTHRESH 20
+#define MINSTEPTIME 50    //define how long to wait between steps (ms)
