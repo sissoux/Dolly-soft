@@ -5,6 +5,8 @@
 #include <TimerOne.h>
 #include <LiquidCrystal.h>
 
+
+
 ClickEncoder *encoder;
 int16_t last, value = 10000;
 
@@ -12,6 +14,14 @@ LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
 int LCDBrightness = 150;
 boolean LCDupdate = false;
 unsigned long Time = 0;
+unsigned long counter = 0;
+int dir = 1;
+unsigned int delayValue = 0;
+unsigned int exposure = 10;
+unsigned int shootDuration = 5400;
+
+  unsigned int NSteps ;
+  unsigned int StepVal ;
 
 char ModeName[3][17] = {
   "Move Shoot Move ",
@@ -53,6 +63,8 @@ void setup()
   Serial.begin(115200);  
   lcd.begin(16, 2);
   initKnob();
+  
+  digitalWrite(EN,HIGH);
 
   lcd.clear();
   delay(250);
@@ -64,35 +76,118 @@ void setup()
   lcd.setCursor(0,0);
   lcd.print("Motorized dolly ");
   lcd.setCursor(0,1);
-  lcd.print("07/08/2014 V1.00"); 
+  lcd.print("07/08/2014 V1.01"); 
   delay(1000);
   LCDupdate = true;
+  
+  lcd.clear();
+    lcd.setCursor(0,0);
+  lcd.print("Exposure time :");
+  last = exposure-1;
+  value = exposure;
+  while (digitalRead(BSW))
+  {
+    
+  updateKnob();
+    lcd.setCursor(0,1);
+    lcd.print("   ");
+    lcd.setCursor(0,1);
+    lcd.print(value);
+    myDelay(100);
+  }
+  exposure = value;
+  
+  myDelay(500);
+  
+  lcd.clear();
+    lcd.setCursor(0,0);
+  lcd.print("Shoot duration :");
+  last = shootDuration-1;
+  value = shootDuration;
+  while (digitalRead(BSW))
+  {
+  updateKnob();
+    lcd.setCursor(0,1);
+    lcd.print("     ");
+    lcd.setCursor(0,1);
+    lcd.print(value);
+    myDelay(100);
+  }
+  shootDuration = value;
+  
+  myDelay(500);
+  
+  NSteps = shootDuration / (exposure+1);
+  StepVal = MAXSTEPS/NSteps;
+  
+  
+  lcd.clear();
+  lcd.print("Start ?");
+  while (digitalRead(RSW))
+  {
+  }
+  
+  
+  myDelay(500);
+    
+  
+  
+  lcd.clear();
+  lcd.print("Move Shoot Move");
+  
+  analogWrite(LCD_BL,10);
+  
   digitalWrite(EN,LOW);
 
 }
 
 void loop()
 {
-  updateKnob();
-  myDelayMicro(value);
-  digitalWrite(DIR,digitalRead(BSW));
+  
+  myDelayMicro(1000);
+  digitalWrite(DIR,dir);
   digitalWrite(EN,LOW);
+  
+  pinMode(SHOOT,OUTPUT);
+  digitalWrite(SHOOT,LOW);
+  myDelay(exposure * 1000);
+  pinMode(SHOOT,INPUT);
+  myDelay(500);
+  
+  for (int x = 0; x<StepVal ; x++)
+  {
   oneStep();
+  counter++;
+  myDelayMicro(200);
+  }
+  /*
+  if (dir)
+  {
+    counter++;
+  }
+  else 
+  {
+    counter--;
+  }*/
+  
+  if (counter > MAXSTEPS)
+  {
+    lcd.clear();
+    lcd.print("THE END");
+    while(true){};
+    counter--;
+    dir = 0;
+  }
 
 }
 
 void updateKnob()
 {
   value += encoder->getValue();
-  value = constrain(value,100,15000);
+  value = constrain(value,0,15000);
   if (value != last) 
   {
     last = value;
-    /*Serial.print("Encoder Value: ");
-    Serial.println(value);
-    */
-    lcd.clear();
-    lcd.print(value);
   }
   ClickEncoder::Button b = encoder->getButton();
   if (b != ClickEncoder::Open)
@@ -198,4 +293,5 @@ void myDelayMicro(int time)
   Time = micros();
   while (micros()-Time < time);
 }
+
 

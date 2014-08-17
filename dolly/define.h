@@ -13,6 +13,8 @@
 
 #define VIN A0
 
+#define SHOOT 20
+
 
 //// LCD conf ////
 #define LCD_RS 2
@@ -32,3 +34,5 @@
 
 #define ACCELTHRESH 20
 #define MINSTEPTIME 50    //define how long to wait between steps (ms)
+
+#define MAXSTEPS 55000//60000
