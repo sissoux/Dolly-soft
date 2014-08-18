@@ -66,99 +66,8 @@ void setup()
   initKnob();
   
   digitalWrite(EN,HIGH);
-
-  lcd.clear();
-  delay(250);
-  for (int i = 0; i<LCDBrightness ; i++)
-  {
-    analogWrite(LCD_BL,i);
-    delay(5);
-  }
-  lcd.setCursor(0,0);
-  lcd.print("Motorized dolly ");
-  lcd.setCursor(0,1);
-  lcd.print("07/08/2014 V1.01"); 
-  delay(1000);
-  LCDupdate = true;
   
-  lcd.clear();
-    lcd.setCursor(0,0);
-  lcd.print("Exposure time :");
-  last = exposure-1;
-  value = exposure;
-  while (digitalRead(BSW))
-  {
-    
-    updateKnob();
-    if (!value)
-    {
-      lcd.setCursor(0,1);
-      lcd.print("   ");
-      lcd.setCursor(0,1);
-      lcd.print(" DSLR selection ");
-    }
-    else
-    {
-      lcd.setCursor(0,1);
-      lcd.print("                ");
-      lcd.setCursor(0,1);
-      lcd.print(value);
-    }
-    myDelay(100);
-  }
-  exposure = value;
-  
-  myDelay(500);
-  
-  lcd.clear();
-    lcd.setCursor(0,0);
-  lcd.print("Shoot duration :");
-  last = shootDuration-1;
-  value = shootDuration;
-  while (digitalRead(BSW))
-  {
-  updateKnob();
-    lcd.setCursor(0,1);
-    lcd.print("     ");
-    lcd.setCursor(0,1);
-    lcd.print(value);
-    myDelay(100);
-  }
-  shootDuration = value;
-  
-  myDelay(500);
-  
-  lcd.clear();
-    lcd.setCursor(0,0);
-  lcd.print("Wait duration :");
-  last = waitDuration-1;
-  value = waitDuration;
-  while (digitalRead(BSW))
-  {
-  updateKnob();
-    lcd.setCursor(0,1);
-    lcd.print("     ");
-    lcd.setCursor(0,1);
-    lcd.print(value);
-    myDelay(100);
-  }
-  waitDuration = value;
-  
-  myDelay(500);
-  
-  NSteps = shootDuration / (exposure + waitDuration);
-  StepVal = MAXSTEPS/NSteps;
-  
-  
-  lcd.clear();
-  lcd.print("Start ?");
-  while (digitalRead(RSW))
-  {
-  }
-  
-  
-  myDelay(500);
-    
+  startupSequence();              //Start basic MSM configuration
   
   
   lcd.clear();
@@ -333,4 +242,99 @@ void myDelayMicro(int time)
   while (micros()-Time < time);
 }
 
-
+void startupSequence()
+{
+lcd.clear();
+  delay(250);
+  for (int i = 0; i<LCDBrightness ; i++)
+  {
+    analogWrite(LCD_BL,i);
+    delay(5);
+  }
+  lcd.setCursor(0,0);
+  lcd.print("Motorized dolly ");
+  lcd.setCursor(0,1);
+  lcd.print("07/08/2014 V1.01"); 
+  delay(1000);
+  LCDupdate = true;
+  
+  lcd.clear();
+    lcd.setCursor(0,0);
+  lcd.print("Exposure time :");
+  last = exposure-1;
+  value = exposure;
+  while (digitalRead(BSW))
+  {
+    
+    updateKnob();
+    if (!value)
+    {
+      lcd.setCursor(0,1);
+      lcd.print("   ");
+      lcd.setCursor(0,1);
+      lcd.print(" DSLR selection ");
+    }
+    else
+    {
+      lcd.setCursor(0,1);
+      lcd.print("                ");
+      lcd.setCursor(0,1);
+      lcd.print(value);
+    }
+    myDelay(100);
+  }
+  exposure = value;
+  
+  myDelay(500);
+  
+  lcd.clear();
+    lcd.setCursor(0,0);
+  lcd.print("Shoot duration :");
+  last = shootDuration-1;
+  value = shootDuration;
+  while (digitalRead(BSW))
+  {
+  updateKnob();
+    lcd.setCursor(0,1);
+    lcd.print("     ");
+    lcd.setCursor(0,1);
+    lcd.print(value);
+    myDelay(100);
+  }
+  shootDuration = value;
+  
+  myDelay(500);
+  
+  lcd.clear();
+    lcd.setCursor(0,0);
+  lcd.print("Wait duration :");
+  last = waitDuration-1;
+  value = waitDuration;
+  while (digitalRead(BSW))
+  {
+  updateKnob();
+    lcd.setCursor(0,1);
+    lcd.print("     ");
+    lcd.setCursor(0,1);
+    lcd.print(value);
+    myDelay(100);
+  }
+  waitDuration = value;
+  
+  myDelay(500);
+  
+  NSteps = shootDuration / (exposure + waitDuration);
+  StepVal = MAXSTEPS/NSteps;
+  
+  
+  lcd.clear();
+  lcd.print("Start ?");
+  while (digitalRead(RSW))
+  {
+  }
+  
+  
+  myDelay(500);
+    
+  
+}
