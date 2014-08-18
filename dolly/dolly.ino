@@ -19,6 +19,7 @@ int dir = 1;
 unsigned int delayValue = 0;
 unsigned int exposure = 10;
 unsigned int shootDuration = 5400;
+unsigned int waitDuration = 1;
 
   unsigned int NSteps ;
   unsigned int StepVal ;
@@ -88,11 +89,21 @@ void setup()
   while (digitalRead(BSW))
   {
     
-  updateKnob();
-    lcd.setCursor(0,1);
-    lcd.print("   ");
-    lcd.setCursor(0,1);
-    lcd.print(value);
+    updateKnob();
+    if (!value)
+    {
+      lcd.setCursor(0,1);
+      lcd.print("   ");
+      lcd.setCursor(0,1);
+      lcd.print(" DSLR selection ");
+    }
+    else
+    {
+      lcd.setCursor(0,1);
+      lcd.print("                ");
+      lcd.setCursor(0,1);
+      lcd.print(value);
+    }
     myDelay(100);
   }
   exposure = value;
@@ -117,7 +128,25 @@ void setup()
   
   myDelay(500);
   
-  NSteps = shootDuration / (exposure+1);
+  lcd.clear();
+    lcd.setCursor(0,0);
+  lcd.print("Wait duration :");
+  last = waitDuration-1;
+  value = waitDuration;
+  while (digitalRead(BSW))
+  {
+  updateKnob();
+    lcd.setCursor(0,1);
+    lcd.print("     ");
+    lcd.setCursor(0,1);
+    lcd.print(value);
+    myDelay(100);
+  }
+  waitDuration = value;
+  
+  myDelay(500);
+  
+  NSteps = shootDuration / (exposure + waitDuration);
   StepVal = MAXSTEPS/NSteps;
   
   
@@ -144,17 +173,27 @@ void setup()
 void loop()
 {
   
-  myDelayMicro(1000);
-  digitalWrite(DIR,dir);
-  digitalWrite(EN,LOW);
+  myDelayMicro(waitDuration/2);   //Wait before shot for stabilization
   
-  pinMode(SHOOT,OUTPUT);
+  digitalWrite(DIR,dir);          //Choose direction
+  digitalWrite(EN,LOW);           //Enable Stepper driver
+  
+  pinMode(SHOOT,OUTPUT);          //Start shoot 
   digitalWrite(SHOOT,LOW);
-  myDelay(exposure * 1000);
-  pinMode(SHOOT,INPUT);
-  myDelay(500);
   
-  for (int x = 0; x<StepVal ; x++)
+  if (!exposure)                  //Wait at least 200ms to be sure DSLR shot
+  {
+    mydelay(200);
+  }
+  
+  myDelay(exposure * 1000);       //Wait exposure time (0 if not in bulb state)
+  
+  pinMode(SHOOT, INPUT);          //Stop shoot (Open drain output ==> Open circuit)
+  digitalWrite(SHOOT, HIGH);
+  
+  myDelayMicro(waitDuration/2);   //Wait before move to allow DSLR to shoot
+  
+  for (int x = 0; x<StepVal ; x++)//Start moving sequence
   {
   oneStep();
   counter++;
